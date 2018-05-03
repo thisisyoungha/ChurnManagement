@@ -78,50 +78,37 @@ def main(input_file_name, new_file_name='',
     extractor.fit(Y_test, p_test)
 
     extractor.print_score(Y_test, p_test)
-    extractor.roc_view(Y_test, p_test)
-    # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
+    # extractor.roc_view(Y_test, p_test)
+
 
     extractor.selected_threshold = extractor.acc_threshold
     extractor.fit(Y_test, p_test)
     extractor.print_score(Y_test, p_test)
-    # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
 
     import numpy as np
     print('*.5')
     extractor.selected_threshold = extractor.roc_threshold + np.std(p_test)/10*.5
     extractor.fit(Y_test, p_test)
     extractor.print_score(Y_test, p_test)
-    # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
 
     print('*1')
     extractor.selected_threshold = extractor.roc_threshold + np.std(p_test)/10*1
     extractor.fit(Y_test, p_test)
     extractor.print_score(Y_test, p_test)
-    # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
 
     print('*2')
     extractor.selected_threshold = extractor.roc_threshold + np.std(p_test) / 10 * 2
     extractor.fit(Y_test, p_test)
     extractor.print_score(Y_test, p_test)
-    # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
+    extractor.see_distribution(Y_test, p_test)
+
 
     print('*1.5')
     extractor.selected_threshold = extractor.roc_threshold + np.std(p_test) / 10 * 1.5
     extractor.fit(Y_test, p_test)
     extractor.print_score(Y_test, p_test)
     # extractor.see_distribution(Y_test, p_test)
-    extractor.see_density(Y_test, p_test)
-    extractor.see_density_pred(p_new)
+    extractor.see_density(Y_test, p_test, p_new)
 
     if save:
         extractor.save_output_new(name=name, X_test=X_test, Y_test=Y_test, p_test=p_test, New_data=New_data, p_new=p_new)
