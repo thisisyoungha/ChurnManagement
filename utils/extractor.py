@@ -346,38 +346,57 @@ class Extractor:
         plt.xticks([1, 4], ('Not churn', 'churn'))
         plt.show()
 
-    def see_density(self, Y_test, p_test):
+    def see_density(self, Y_test, p_test, p_new):
+        plt.subplot(211)
+
         condition_churn = np.nonzero((Y_test == 1))[0]
         condition_notchurn = np.nonzero((Y_test == 0))[0]
         from scipy.stats import gaussian_kde
-        density_c = gaussian_kde(p_test[condition_churn].reshape(-1), bw_method=.3)
-        density_n = gaussian_kde(p_test[condition_notchurn].reshape(-1), bw_method=.3)
-        dx = np.linspace(0., 1., len(p_test)/1000)
-        plt.plot(dx, density_c(dx)/7)
-        plt.fill(np.insert(dx, [0, -1], [0, 1]), np.insert(density_c(dx)/7, [0, -1], 0), color='blue', alpha=0.1)
-        plt.plot(dx, density_n(dx)/3)
-        plt.fill(np.insert(dx, [0, -1], [0, 1]), np.insert(density_n(dx)/3, [0, -1], 0), color='red', alpha=0.1)
-        plt.grid(True)
-        plt.xlim([0, 1])
-        plt.ylabel('density')
-        plt.xlabel('score')
-        plt.yticks([])
-        plt.show()
+        density_c = gaussian_kde(p_test[condition_churn].reshape(-1), bw_method=.1)
+        density_n = gaussian_kde(p_test[condition_notchurn].reshape(-1), bw_method=.1)
+        dx = np.linspace(0., 1., 1000)
+        density_c = density_c(dx) / len(Y_test) * 10000
+        density_n = density_n(dx) / len(Y_test) * 10000
 
-    def see_density_pred(self, p_new):
-        condition_churn = np.nonzero((p_new > self.selected_threshold))[0]
-        condition_notchurn = np.nonzero((p_new < self.selected_threshold))[0]
-        from scipy.stats import gaussian_kde
-        density_c = gaussian_kde(p_new[condition_churn].reshape(-1), bw_method=.3)
-        density_n = gaussian_kde(p_new[condition_notchurn].reshape(-1), bw_method=.3)
-        dx = np.linspace(0., 1., len(p_new)/100)
-        plt.plot(dx, density_c(dx))
-        plt.fill(np.insert(dx, [0, -1], [0, 1]), np.insert(density_c(dx), [0, -1], 0), color='blue', alpha=0.1)
-        plt.plot(dx, density_n(dx))
-        plt.fill(np.insert(dx, [0, -1], [0, 1]), np.insert(density_n(dx), [0, -1], 0), color='red', alpha=0.1)
+        plt.title('accuracy: %1.4f, power: %1.4f' % (self.precision, self.recall))
+        plt.plot(dx, density_c)
+        plt.fill(np.insert(dx, [0, len(dx)], [0, 1]), np.insert(density_c, [0, len(dx)], [0, 0]), color='blue',
+                 alpha=0.1)
+        plt.plot(dx, density_n)
+        plt.fill(np.insert(dx, [0, len(dx)], [0, 1]), np.insert(density_n, [0, len(dx)], [0, 0]), color='red',
+                 alpha=0.1)
+        plt.plot([self.selected_threshold, self.selected_threshold],
+                 [0, max(np.max(density_c), np.max(density_n)) * 1.1], color='m',
+                 label='cut-off: %.4f' % self.selected_threshold)
         plt.grid(True)
         plt.xlim([0, 1])
+        # plt.ylim([0, max(np.max(density_c), np.max(density_n)) * 1.1])
         plt.ylabel('density')
         plt.xlabel('score')
-        plt.yticks([])
+        plt.legend()
+
+        plt.subplot(212)
+        from scipy.stats import gaussian_kde
+        density = gaussian_kde(p_new.reshape(-1), bw_method=.1)
+        dx = np.linspace(0., 1., 1000)
+        dx1 = dx[np.nonzero(dx > self.selected_threshold)[0]]
+        dx2 = dx[np.nonzero(dx < self.selected_threshold)[0]]
+        density_c = density(dx1) / len(p_new) * 10000
+        density_n = density(dx2) / len(p_new) * 10000
+        plt.plot(dx1, density_c)
+        plt.fill(np.insert(dx1, [0, len(dx1)], [self.selected_threshold, 1]),
+                 np.insert(density_c, [0, len(dx1)], [0, 0]), color='blue', alpha=0.1)
+        plt.plot(dx2, density_n)
+        plt.fill(np.insert(dx2, [0, len(dx2)], [0, self.selected_threshold]),
+                 np.insert(density_n, [0, len(dx2)], [0, 0]), color='red', alpha=0.1)
+        plt.plot([self.selected_threshold, self.selected_threshold],
+                 [0, max(np.max(density_c), np.max(density_n)) * 1.1], color='m',
+                 label='cut-off: %.4f' % self.selected_threshold)
+        plt.grid(True)
+        plt.xlim([0, 1])
+        # plt.ylim([0, max(np.max(density_c), np.max(density_n)) * 1.1])
+        plt.ylabel('density')
+        plt.xlabel('score')
+
+        plt.tight_layout()
         plt.show()
